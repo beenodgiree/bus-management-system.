@@ -1,0 +1,46 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: busms-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: busms
+      MYSQL_USER: busms
+      MYSQL_PASSWORD: busmspass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: busms-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: busms
+      DB_USERNAME: busms
+      DB_PASSWORD: busmspass
+      JWT_SECRET: change-me-in-production-please-use-a-long-random-secret
+      SQL_INIT_MODE: always
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    container_name: busms-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  mysql-data:
