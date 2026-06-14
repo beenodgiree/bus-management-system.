@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: bus-management-system
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:bus_management}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Tokyo
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update          # auto-creates/updates tables from entities (fine for a portfolio app)
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+    # Ensures database/data.sql runs AFTER Hibernate creates the schema.
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:never}   # set to "always" to load database/data.sql sample data
+
+server:
+  port: ${SERVER_PORT:8080}
+
+# Application-specific settings
+app:
+  jwt:
+    # Override in production via env var. Must be at least 32 chars for HS256.
+    secret: ${JWT_SECRET:change-this-in-production-to-a-very-long-random-secret-key-2024}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}   # 24 hours
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.busms: INFO
